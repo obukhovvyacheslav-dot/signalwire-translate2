@@ -1,29 +1,35 @@
 const express = require('express');
-const axios = require('axios');
+const OpenAI = require('openai');
 const app = express();
 
 app.use(express.json());
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
 app.post('/translate', async (req, res) => {
   try {
     const event = req.body;
-    console.log('Event received:', event);
+    console.log('Received:', JSON.stringify(event, null, 2));
     
-    // Подтверждаем получение
+    // Для live_translate просто подтверждаем
+    // SignalWire сам обрабатывает STT->Translate->TTS
     res.json({ 
       action: 'continue'
     });
+    
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.get('/', (req, res) => {
-  res.send('SignalWire Translation Webhook Running');
+  res.send('Webhook running!');
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server on port ${PORT}`);
 });
